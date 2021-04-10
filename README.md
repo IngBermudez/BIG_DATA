@@ -6,6 +6,7 @@
 Table of contents
 
 - [Practice 1](#practice-1)
+- [Practice 2](#practice-2)
 
 
 <div id='pr1' />
@@ -63,6 +64,63 @@ val tupla=(2,4,5,1,2,3,3.1416,23)
 println(tupla._7)
 ```
 
+
+## Practice 2
+---
+In this practice, certain exercises will be carried out to reinforce what was seen in class, from arrays, lists and maps
+
+1. Create a list called "lista" with the elements "rojo", "blanco", "negro"
+```scala
+val lista = Lista("rojo","blanco","negro")
+```
+
+2. Add 5 more items to "lista" "verde" ,"amarillo", "azul", "naranja", "perla"
+
+>collection.mutable allows us to modify the data within a data structure, such as adding, deleting etc.
+```scala
+val list= collection.mutable.Set("rojo","blanco","negro")
+lista+="verde"
+lista+= "amarillo"
+lista+="azul"
+lista+= "naranja"
+lista+="perla"
+```
+3. Bring the items "verde" ,"amarillo" and "azul" from "lista" 
+
+>With this we send to call the elements in that position
+```scala
+lista(3)
+lista(4)
+lista(5)
+```
+
+4. Create an Array of numbers in the range 1-1000 in steps of 5 by 5
+
+>range is a method that allows us to create another array with the mentioned sequence
+```scala
+val arreglo  = Array.range(1, 1000, 5)
+```
+
+5. What are the unique elements of the list lista(1,3,3,4,6,7,3,7)  use conversion to sets
+
+>With the function list .to Set as the name mentions, it allows us to pass a list to a data set
+```scala
+val lista = List(1,3,3,4,6,7,3,7)
+list.toSet
+```
+
+6.  Create a map mutable named Names containing the following elements: "Jose", 20, "Luis", 24, "Ana", 23, "Susana", "27"
+```scala
+val mapa = collection.mutable.Map(("Jose", 20), ("Luis", 24), ("Ana", 23),("Susana","27"))
+```
+- 6a. Print all map keys
+```scala
+mapa.keys
+```
+- 6b. Add the following value to the map ("Miguel", 23)
+```scala
+mapa += ("Miguel" -> 23)
+```
 
 
 

@@ -7,7 +7,7 @@ Table of contents
 
 - [Practice 1](#practice-1)
 - [Practice 2](#practice-2)
-
+- [Practice 3](#practice-3)
 
 <div id='pr1' />
 
@@ -124,5 +124,98 @@ mapa += ("Miguel" -> 23)
 
 
 
+## Practice 3
+---
+In this practice, we are going to make the pseudocodes of all the versions of the fibonacci series  using scala
 
+1. Recursive version
 
+>The first way to solve a fibonacci series that we find is the following, based on recursion due to its way of handling the data within the function. Being N the number from which it gives us the number of times the function will have to be repeated to reach itself based on the formula of the fibonacci series
+```scala
+def fib(N: Int): Int = {
+if (N <2){
+ return N
+   }
+   else {
+      return fib(N-1) + fib (N-2)
+   }
+}
+```
+
+2. Iterative version using the while cycle
+
+>In this way, the returned result will be an int, we declare the variables that we are going to use. In the while loop we add the variables until i is greater than n
+```scala
+def fib2( n : Int ) : Int = {
+  var a = 0
+  var b = 1
+  var i = 0	  
+ 
+  while( i < n ) {
+    val c = a + b
+    a = b
+    b = c
+    i = i + 1
+  } 
+  return a
+}
+```
+
+3. Cyclical version or terative second version 
+
+>The difference between this algorithm and the past one is that only two variables are used in the sum. In the same way, "a" is returned as a value of int
+```scala
+def fib3(N: Int): Int ={
+    var a=0
+    var b=1
+    var i=0
+    while(i<N){
+        b=b+a
+        a=b-a
+        i=i+1
+    }
+    return a
+}
+```
+
+4. Iterative with a vector
+
+>It all begins by verifying that n is less than 2, when it is not, a vector with a range of (0, n + 1) is made and we give a k value of 2, if k is still less than n + 1 then the vector is add K-1 and k + 1 and then increase the value of k and return until n is less than 2
+```scala
+def fib4(N: Int): Int = {
+    if (N<2) {
+        return N
+    }
+    else {
+        val Vector = Array.range (0, (N+1))
+        Vector(0) = 0
+        Vector(1) = 1
+        var k = 2
+        while (k < (N+1)) {
+            Vector(k) = Vector (k-1) + Vector (k-2)
+            k= k+1
+        }
+        return Vector(N)
+    }
+}
+```
+
+5. Explicit formula
+
+>This algorithm can be done thanks to the use of libraries and their functions.
+for i and J different methods are used with their respective functions. In the case of the variable i, the sqrt function is used to obtain its value and in J the math.pow function is used to raise the power of the value and perform the operation, once the results are obtained as they use too many decimals with the bigDecimal library We round it like this by reducing the number of decimal digits
+```scala
+import scala.math.sqrt
+import scala.math.BigDecimal
+
+def fib2(N: Int): Double = {
+if (N <2){
+        return N
+    }
+    else {
+        var i = (1+ sqrt(5))/2
+        var j = (scala.math.pow(i,N) - scala.math.pow((1-i),N))/sqrt(5)
+        return BigDecimal(j).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+    }
+}
+```

@@ -21,7 +21,7 @@ dataframe.describe().show()
 /* 7. Create a new dataframe with a new column called "HV Ratio" which is the 
 relationship between the price of the column "High" versus the column "Volume" of
 shares traded for one day. (Hint: It is a column operation). */
-val dataframe2 = dataframe.withColumn("HV Ratio", dataframe("High")+dataframe("Volume")).show(5)
+val dataframe2 = dataframe.withColumn("HV Ratio", dataframe("High")/dataframe("Volume")).show(5)
 
 
 //8. Which day had the highest peak in the “Close” column?

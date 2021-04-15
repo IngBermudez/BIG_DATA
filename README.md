@@ -16,7 +16,7 @@ Table of contents
 <div id='pr1' />
 
 ## Practice 1
----
+
 
 In this practice, certain exercises will be carried out to reinforce what was seen in class, from positioning in tuples to simple interpolations of chains
 
@@ -70,7 +70,7 @@ println(tupla._7)
 
 
 ## Practice 2
----
+
 In this practice, certain exercises will be carried out to reinforce what was seen in class, from arrays, lists and maps
 
 1. Create a list called "lista" with the elements "rojo", "blanco", "negro"
@@ -129,7 +129,7 @@ mapa += ("Miguel" -> 23)
 
 
 ## Practice 3
----
+
 In this practice, we are going to make the pseudocodes of all the versions of the fibonacci series  using scala
 
 1. Recursive version
@@ -241,3 +241,109 @@ These two workers are typically assigned different roles: the programmer who has
 
 ## Evaluative Practice
 ---
+
+1.  Start a Spark session 
+
+>We run the first part of the code to have access to sparksession, then we add it to a variable together with the function "builder ()" to create the session and with getorcreate () we say that in case it already exists to use that same one, this way we avoid redundancy
+```scala 
+import org.apache.spark.sql.SparkSession
+val spark = SparkSession.builder().getOrCreate()
+```
+2.  Upload the CSV file with Spark inferring the data types.
+
+>For the dataframe we make it load it into a variable. We add the functions we want, in this case we will use the "inferschema" option that will help us later, it is by default false.
+```scala 
+val dataframe = spark.read.option("header", "true").option("inferSchema","true")csv("C:/Users/the_g/Documents/Github/BigData/Spark_DataFrame/Netflix_2011_2016.csv")
+```
+
+3. What are the column names?
+
+>We use a simple method that gives us the names of the columns. below we can see the result that it gives
+```scala 
+dataframe.columns
+res0: Array[String] = Array(Date, Open, High, Low, Close, Volume, Adj Close)
+```
+4. How is the scheme?
+
+
+>With this method we can see the scheme in tree format
+```scala 
+dataframe.printSchema()
+root
+ |-- Date: timestamp (nullable = true)
+ |-- Open: double (nullable = true)
+ |-- High: double (nullable = true)
+ |-- Low: double (nullable = true)
+ |-- Close: double (nullable = true)
+ |-- Volume: integer (nullable = true)
+ |-- Adj Close: double (nullable = true)
+```
+
+ 5. Print the first 5 columns.
+ 
+ >We use a simple sql type function calling the columns with the specific names and with the show (5) method we show them in a table format with 5 rows of data
+ ```scala 
+ dataframe.select("Date", "Open", "High", "Low", "Close").show(5)
+ +-------------------+----------+------------------+----------+-----------------+
+|               Date|      Open|              High|       Low|            Close|
++-------------------+----------+------------------+----------+-----------------+
+|2011-10-24 00:00:00|119.100002|120.28000300000001|115.100004|       118.839996|
+|2011-10-25 00:00:00| 74.899999|         79.390001| 74.249997|        77.370002|
+|2011-10-26 00:00:00|     78.73|         81.420001| 75.399997|        79.400002|
+|2011-10-27 00:00:00| 82.179998| 82.71999699999999| 79.249998|80.86000200000001|
+|2011-10-28 00:00:00| 80.280002|         84.660002| 79.599999|84.14000300000001|
++-------------------+----------+------------------+----------+-----------------
+
+```
+6. Use describe () to learn about the DataFrame.
+
+>describe() returns the basic information of the metadata and with "show()" we show them in table format
+```scala 
+dataframe.describe().show()
++-------+------------------+------------------+------------------+------------------+--------------------+------------------+
+|summary|              Open|              High|               Low|             Close|              Volume|         Adj Close|
++-------+------------------+------------------+------------------+------------------+--------------------+------------------+
+|  count|              1259|              1259|              1259|              1259|                1259|              1259|
+|   mean|230.39351086656092|233.97320872915006|226.80127876251044|  230.522453845909|2.5634836060365368E7|55.610540036536875|
+| stddev|164.37456353264244| 165.9705082667129| 162.6506358235739|164.40918905512854| 2.306312683388607E7|35.186669331525486|
+|    min|         53.990001|         55.480001|             52.81|              53.8|             3531300|          7.685714|
+|    max|        708.900017|        716.159996|        697.569984|        707.610001|           315541800|        130.929993|
++-------+------------------+------------------+------------------+------------------+--------------------+------------------+
+```
+7. Create a new dataframe with a new column called "HV Ratio" which is the 
+relationship between the price of the column "High" versus the column "Volume" of
+shares traded for one day. (Hint: It is a column operation). 
+
+>What is done here is that within another dataframe together with the withcolumn function we add a new column (This function allows us to move, replace or update the data), We indicate the name of the column and the data it will have. finally we show the first 5 with the show function
+```scala 
+val dataframe2 = dataframe.withColumn("HV Ratio", dataframe("High")/dataframe("Volume")).show(5)
++-------------------+----------+------------------+----------+-----------------+---------+------------------+--------------------+
+|               Date|      Open|              High|       Low|            Close|   Volume|         Adj Close|            HV Ratio|
++-------------------+----------+------------------+----------+-----------------+---------+------------------+--------------------+
+|2011-10-24 00:00:00|119.100002|120.28000300000001|115.100004|       118.839996|120460200|         16.977142|9.985040951285156E-7|
+|2011-10-25 00:00:00| 74.899999|         79.390001| 74.249997|        77.370002|315541800|11.052857000000001|2.515989989281927E-7|
+|2011-10-26 00:00:00|     78.73|         81.420001| 75.399997|        79.400002|148733900|         11.342857|5.474206014903126E-7|
+|2011-10-27 00:00:00| 82.179998| 82.71999699999999| 79.249998|80.86000200000001| 71190000|11.551428999999999|1.161960907430818...|
+|2011-10-28 00:00:00| 80.280002|         84.660002| 79.599999|84.14000300000001| 57769600|             12.02|1.465476686700271...|
++-------------------+----------+------------------+----------+-----------------+---------+------------------+--------------------+
+```
+
+8. Which day had the highest peak in the “Close” column?
+
+>As in question 5 we tell it which columns we want, then we sort them by descendant and together with "show()" we only show the first row of values
+```scala 
+dataframe.select("Date", "Close").orderBy(desc("Close")).show(1)
+
++-------------------+----------+
+|               Date|     Close|
++-------------------+----------+
+|2015-07-13 00:00:00|707.610001|
++-------------------+----------+
+```
+
+ 9. Write in your own words in a comment of your code. Which is the meaning of the Close column “Close”?
+
+>It refers to how  Netflix ends the day with its finances taking into 
+account its High and lows
+
+10. 

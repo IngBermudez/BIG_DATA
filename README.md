@@ -234,8 +234,10 @@ The method known as pair programming (in Spanish, programming in pairs)It is mai
 [Full Version](https://github.com/IngBermudez/BIG_DATA/blob/Unit_1/Investigations/PairCoding_Bermudez.md)
 
 ### Pair Coding 2
+These two workers are typically assigned different roles: the programmer who has been assigned the pilot role is in charge of writing the code. The programmer who has been assigned the copilot role is in charge of monitoring that code. One of the rules of the scheduling pair states that these two roles are exchanged regularly (at short intervals). In this way, a possible hierarchical gap is avoided: equality between both workers is promoted and a fluid exchange of roles is achieved.
 
-
+-- Zuñiga Sosa Ruben
+[Full Version](https://github.com/IngBermudez/BIG_DATA/blob/Unit_1/Investigations/PairCoding_Zuñiga.md)
 
 ## Evaluative Practice
 ---

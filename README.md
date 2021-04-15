@@ -8,6 +8,10 @@ Table of contents
 - [Practice 1](#practice-1)
 - [Practice 2](#practice-2)
 - [Practice 3](#practice-3)
+- [Investigation](#investigation)
+    - [Pair Coding](#pair-coding)
+    - [Pair Coding 2](#pair-coding-2)
+- [Evaluative Practice](#evaluative-practice)
 
 <div id='pr1' />
 
@@ -219,3 +223,19 @@ if (N <2){
     }
 }
 ```
+
+
+## Investigation
+---
+### Pair Coding
+The method known as pair programming (in Spanish, programming in pairs)It is mainly used in agile software development and, more specifically, inextreme programming (XP). Pair programming specifies that there are always twopeople working on the code at the same time and that, as far as possible,they sit together. One is in charge of writing the code and the other of supervising inreal time. At the same time, they are constantly exchanging impressions:they discuss problems, find solutions and develop creative ideas.
+
+-- Bermudez Ornelas Alberto
+[Full Version](https://github.com/IngBermudez/BIG_DATA/blob/Unit_1/Investigations/PairCoding_Bermudez.md)
+
+### Pair Coding 2
+
+
+
+## Evaluative Practice
+---

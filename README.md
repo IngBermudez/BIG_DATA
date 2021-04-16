@@ -378,18 +378,18 @@ val df3=dataframe
 df3: org.apache.spark.sql.DataFrame = [Date: timestamp, Open: double ... 5 more fields
 ``` 
 
-a) How many days was the “Close” column less than $ 600? 
+- a) How many days was the “Close” column less than $ 600? 
 
-In a variable, the value of our filtered dataframe is assigned based on the close column with the filter function, highlighting that it counts the values ​​below 600 that exist in the column.
+>In a variable, the value of our filtered dataframe is assigned based on the close column with the filter function, highlighting that it counts the values ​​below 600 that exist in the column.
 
 ```scala 
 val infcl = df3.filter($"Close" < 600 ).count()
 infcl: Long = 1218
 ``` 
 
-b) What percentage of the time was the “High” column greater than $ 500?
+- b) What percentage of the time was the “High” column greater than $ 500?
 
-For the solution of this point, we used exactly the same filter as above, but using High as the selected column and this time highlighting the quantities greater than 500, to in turn count them and save them in the variable "dfpercentage".
+>For the solution of this point, we used exactly the same filter as above, but using High as the selected column and this time highlighting the quantities greater than 500, to in turn count them and save them in the variable "dfpercentage".
 In the next part of the result variable, the corresponding operation was carried out to obtain the requested percentage, which resulted in 4%.
 
 ```scala 
@@ -400,9 +400,9 @@ dfporcentaje: Long = 62
 resultado: Double = 4.0
 ``` 
 
-c) What is the Pearson correlation between column "High" and column "Volume"?
+- c) What is the Pearson correlation between column "High" and column "Volume"?
 
-In this case it was simple because in scala we found a variety of very useful functions, in this case we have "corr" that allowed us to easily obtain the result by just comparing both columns and showing them with .show.
+>In this case it was simple because in scala we found a variety of very useful functions, in this case we have "corr" that allowed us to easily obtain the result by just comparing both columns and showing them with .show.
 
 ```scala 
 df3.select(corr($"High", $"Volume")).show()
@@ -413,9 +413,9 @@ df3.select(corr($"High", $"Volume")).show()
 +--------------------+
 ``` 
 
-d) What is the maximum in the “High” column per year?
+- d) What is the maximum in the “High” column per year?
 
-To obtain the following, we obviously need to group our dataframe by year, which was done with the groupby function and its grouping specifications were the year that was extracted directly from the date column of our dataframe. later for the year we only need ".max" on the High column to obtain the maximum value for each year in that column.
+>To obtain the following, we obviously need to group our dataframe by year, which was done with the groupby function and its grouping specifications were the year that was extracted directly from the date column of our dataframe. later for the year we only need ".max" on the High column to obtain the maximum value for each year in that column.
 ```scala 
 df3.groupBy(year(df3("Date"))).max("High").show()
 +----------+------------------+                                                 
@@ -430,9 +430,9 @@ df3.groupBy(year(df3("Date"))).max("High").show()
 +----------+------------------+
 ``` 
 
-e) What is the “Close” column average for each calendar month?
+- e) What is the “Close” column average for each calendar month?
 
-In the last point, something very similar to the previous one was done, but this time in the grouping part, the month was extracted from the Date column of our dataframe and the .avg function was used to obtain the average per month of the close column
+>In the last point, something very similar to the previous one was done, but this time in the grouping part, the month was extracted from the Date column of our dataframe and the .avg function was used to obtain the average per month of the close column
 ```scala 
 val clavg=df3.groupBy(month(dataframe("Date"))).avg("Close")
 clavg.show

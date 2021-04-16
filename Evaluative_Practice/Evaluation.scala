@@ -3,7 +3,7 @@ import org.apache.spark.sql.SparkSession
 val spark = SparkSession.builder().getOrCreate()
 
 //2.  Upload the CSV file with Spark inferring the data types.
-val dataframe = spark.read.option("header", "true").option("inferSchema","true")csv("C:/Users/the_g/Documents/Github/BigData/Spark_DataFrame/Netflix_2011_2016.csv")
+val dataframe = spark.read.option("header", "true").option("inferSchema","true")csv("C:/Users/the_g/Documents/Github/BIG_DATA/BIG_DATA/Evaluative_Practice/Netflix_2011_2016.csv")
 
 //3. What are the column names?
 dataframe.columns

@@ -253,7 +253,8 @@ val spark = SparkSession.builder().getOrCreate()
 
 >For the dataframe we make it load it into a variable. We add the functions we want, in this case we will use the "inferschema" option that will help us later, it is by default false.
 ```scala 
-val dataframe = spark.read.option("header", "true").option("inferSchema","true")csv("C:/Users/the_g/Documents/Github/BigData/Spark_DataFrame/Netflix_2011_2016.csv")
+val dataframe = spark.read.option("header", "true").option("inferSchema","true")csv("C:/Users/the_g/Documents/Github/BIG_DATA/BIG_DATA/Evaluative_Practice/Netflix_2011_2016.csv")
+
 ```
 
 3. What are the column names?

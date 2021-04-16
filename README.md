@@ -346,4 +346,110 @@ dataframe.select("Date", "Close").orderBy(desc("Close")).show(1)
 >It refers to how  Netflix ends the day with its finances taking into 
 account its High and lows
 
-10. 
+10. What is the maximum and minimum of the “Volume” column?
+
+The extraction of the data from a specific column of the dataframe was saved in a variable named maxVolume, which in this case was Volume, from which, through the Map, max and min functions, the requested values ​​were extracted.
+```scala 
+val maxVolume = dataframe.agg(Map("Volume" -> "max"))
+maxVolume: org.apache.spark.sql.DataFrame = [max(Volume): int]
+
+maxVolume.show()
++-----------+
+|max(Volume)|
++-----------+
+|  315541800|
++-----------+
+val minVolume = dataframe.agg(Map("Volume" -> "min"))
+minVolume: org.apache.spark.sql.DataFrame = [min(Volume): int]
+
+minVolume.show()
++-----------+
+|min(Volume)|
++-----------+
+|    3531300|
++-----------+
+```
+11. With Syntax Scala / Spark $ answer the following:
+◦ Hint: Basically very similar to the dates session, you will have to create another
+dataframe to answer some of the items.
+
+```scala 
+val df3=dataframe
+df3: org.apache.spark.sql.DataFrame = [Date: timestamp, Open: double ... 5 more fields
+``` 
+
+a) How many days was the “Close” column less than $ 600? 
+
+In a variable, the value of our filtered dataframe is assigned based on the close column with the filter function, highlighting that it counts the values ​​below 600 that exist in the column.
+
+```scala 
+val infcl = df3.filter($"Close" < 600 ).count()
+infcl: Long = 1218
+``` 
+
+b) What percentage of the time was the “High” column greater than $ 500?
+
+For the solution of this point, we used exactly the same filter as above, but using High as the selected column and this time highlighting the quantities greater than 500, to in turn count them and save them in the variable "dfpercentage".
+In the next part of the result variable, the corresponding operation was carried out to obtain the requested percentage, which resulted in 4%.
+
+```scala 
+ val dfporcentaje = df3.filter($"High" > 500).count()
+dfporcentaje: Long = 62
+
+ val resultado: Double  = (dfporcentaje*100)/(dataframe.count)
+resultado: Double = 4.0
+``` 
+
+c) What is the Pearson correlation between column "High" and column "Volume"?
+
+In this case it was simple because in scala we found a variety of very useful functions, in this case we have "corr" that allowed us to easily obtain the result by just comparing both columns and showing them with .show.
+
+```scala 
+df3.select(corr($"High", $"Volume")).show()
++--------------------+
+|  corr(High, Volume)|
++--------------------+
+|-0.20960233287942157|
++--------------------+
+``` 
+
+d) What is the maximum in the “High” column per year?
+
+To obtain the following, we obviously need to group our dataframe by year, which was done with the groupby function and its grouping specifications were the year that was extracted directly from the date column of our dataframe. later for the year we only need ".max" on the High column to obtain the maximum value for each year in that column.
+```scala 
+df3.groupBy(year(df3("Date"))).max("High").show()
++----------+------------------+                                                 
+|year(Date)|         max(High)|
++----------+------------------+
+|      2015|        716.159996|
+|      2013|        389.159988|
+|      2014|        489.290024|
+|      2012|        133.429996|
+|      2016|129.28999299999998|
+|      2011|120.28000300000001|
++----------+------------------+
+``` 
+
+e) What is the “Close” column average for each calendar month?
+
+In the last point, something very similar to the previous one was done, but this time in the grouping part, the month was extracted from the Date column of our dataframe and the .avg function was used to obtain the average per month of the close column
+```scala 
+val clavg=df3.groupBy(month(dataframe("Date"))).avg("Close")
+clavg.show
++-----------+------------------+                                                
+|month(Date)|        avg(Close)|
++-----------+------------------+
+|         12| 199.3700942358491|
+|          1|212.22613874257422|
+|          6| 295.1597153490566|
+|          3| 249.5825228971963|
+|          5|264.37037614150944|
+|          9|206.09598121568627|
+|          4|246.97514271428562|
+|          8|195.25599892727263|
+|          7|243.64747528037387|
+|         10|205.93297300900903|
+|         11| 194.3172275445545|
+|          2| 254.1954634020619|
++-----------+------------------+
+``` 

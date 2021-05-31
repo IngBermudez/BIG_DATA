@@ -5,16 +5,20 @@
 
 Table of contents
 - [Unit 1](#unit-1)
-    - [Practice 1](#practice-1)
-    - [Practice 2](#practice-2)
-    - [Practice 3](#practice-3)
+    - [Practices](#practices-1-1)
+        - [Practice 1](#practice-1)
+        - [Practice 2](#practice-2)
+        - [Practice 3](#practice-3)
     - [Investigation](#investigation)
         - [Pair Coding](#pair-coding)
         - [Pair Coding 2](#pair-coding-2)
     - [Evaluative Practice](#evaluative-practice)
 
 - [Unit 2](#unit-2)
-  - [Practice 1](#practice-1-1)
+    - [Practices](#practices-1-1)
+        - [Practice 1](#practice-1-1)
+        - [Practice 2](#practice-2-1)
+        - [Practice 3](#practice-3-1)
   - [Evaluative Practice](#evaluative-practice-1)
     - [Introduction](#introduction)
 
@@ -460,3 +464,129 @@ clavg.show
 |          2| 254.1954634020619|
 +-----------+------------------+
 ``` 
+
+
+# Unit 2
+## Practices 
+---
+## Practice 1
+
+1. Correlation
+
+>We start with this 3 librarys to have access to local arrays and Factory Methods for Vector, to use the correlation method and to allow a row value to be accessed through generic ordinal access, as well as primitive access
+
+```scala
+import org.apache.spark.ml.linalg.{Matrix, Vectors}
+import org.apache.spark.ml.stat.Correlation
+import org.apache.spark.sql.Row
+```
+
+>Create dense and sparse vectors from their values, within the matrix
+```scala
+val data = Seq(
+   (4, Seq((0, 1.0), (3, -2.0))),
+  Vectors.dense(4.0, 5.0, 0.0, 3.0),
+  Vectors.dense(6.0, 7.0, 0.0, 8.0),
+  Vectors.sparse(4, Seq((0, 9.0), (3, 1.0)))
+)
+```
+>The data is extracted from our matrix and a dataframe is created regarding the characteristics, then The Pearson correlation matrix is created using the data frame and we ask for the first values with head. To end  we print the result
+```scala
+val df = data.map(Tuple1.apply).toDF("features")
+val Row(coeff1: Matrix) = Correlation.corr(df, "features").head
+println(s"Pearson correlation matrix:\n $coeff1")
+```
+
+>The Spearman correlation matrix is created using the dataframe that we just created then we ask for the first values with head and  we print the result
+```scala
+val Row(coeff2: Matrix) = Correlation.corr(df, "features", "spearman").head
+println(s"Spearman correlation matrix:\n $coeff2")
+```
+
+
+2. Hypothesis testing
+
+>the following librarys is used to apply methods to vectors  and The chiSquare library is also used to perform the necessary calculations
+```scala
+import org.apache.spark.ml.linalg.{Vector, Vectors}
+import org.apache.spark.ml.stat.ChiSquareTest
+``` 
+
+>the following sequence of dense vectors is created
+```scala
+val data = Seq(
+  (0.0, Vectors.dense(0.5, 10.0)),
+  (0.0, Vectors.dense(1.5, 20.0)),
+  (1.0, Vectors.dense(1.5, 30.0)),
+  (0.0, Vectors.dense(3.5, 30.0)),
+  (0.0, Vectors.dense(3.5, 40.0)),
+  (1.0, Vectors.dense(3.5, 40.0))
+)
+```
+
+>Creation of the dataframe from the previous set of vectors then the first values  are taken, and last we Initially with the parts of the test, the values of p will be searched
+```scala
+val df = data.toDF("label", "features")
+val chi = ChiSquareTest.test(df, "features", "label").head
+println(s"pValues = ${chi.getAs[Vector](0)}")
+``` 
+
+>After the model's degrees of freedom will be searched
+```scala
+println(s"degreesOfFreedom ${chi.getSeq[Int](1).mkString("[", ",", "]")}")
+```
+>finally certain values are extracted from a given vector all based on the chi square function
+```scala
+println(s"statistics ${chi.getAs[Vector](2)}")
+```
+
+3. Summarizer
+
+>import of necessary libraries, in this use of vectors and the summarizer itself
+```scala
+import spark.implicits._    
+import Summarizer._
+```
+>create a set of vectors or sequence
+```scala
+val data = Seq(
+  (Vectors.dense(2.0, 3.0, 5.0), 1.0),
+  (Vectors.dense(4.0, 6.0, 7.0), 2.0)
+)
+```
+
+>Creation of the dataframe from the vectors
+```scala
+val df = data.toDF("features", "weight")
+```
+
+>use the summarizer library to obtain the mean and variance of some data in the requested dataframe
+```scala
+val (meanVal, varianceVal) = df.select(metrics("mean", "variance").summary($"features", $"weight").as("summary")).select("summary.mean", "summary.variance").as[(Vector, Vector)].first()
+```
+
+>the variables previously worked on are printed
+```scala
+println(s"with weight: mean = ${meanVal}, variance = ${varianceVal}")
+```
+
+>the process is repeated with 2 new variables
+```scala
+val (meanVal2, varianceVal2) = df.select(mean($"features"), variance($"features"))
+  .as[(Vector, Vector)].first()
+```
+
+>variable printing 
+```scala
+println(s"without weight: mean = ${meanVal2}, sum = ${varianceVal2}")
+```
+
+
+## Practice 2
+
+
+## Practice 3
+
+
+
+## Practice 4

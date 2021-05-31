@@ -829,8 +829,10 @@ println(s"Learned classification GBT model:\n ${gbtModel.toDebugString}")
 
 ## Practice 5
 
+```scala
 import org.apache.spark.ml.classification.MultilayerPerceptronClassifier
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+``` 
 
 > Load the data stored in LIBSVM format as a DataFrame.
 ```Scala
@@ -862,6 +864,137 @@ val model = trainer.fit(train)
 val result = model.transform(test)
 val predictionAndLabels = result.select("prediction", "label")
 val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
-
 println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")
-```Scala
+```
+
+## Practice 6
+
+
+>We import the "LinearSVC" library, this binary classifier optimizes the hinge loss using the OWLQN optimizer.
+```scala
+import org.apache.spark.ml.classification.LinearSVC
+```
+
+>We import and create the session in spark.
+```scala
+import org.apache.spark.sql.SparkSession
+val spark = SparkSession.builder.appName("LinearSVCExample").getOrCreate()
+```
+>We load the training data.
+```scala
+val training = spark.read.format("libsvm").load("/Archivos/sample_libsvm_data.txt")
+```
+
+>We set the maximum number of iterations and the regularization parameter.
+```scala
+val lsvc = new LinearSVC().setMaxIter(10).setRegParam(0.1)
+```
+
+>We carry out a fit to adjust the model.
+```scala
+val lsvcModel = lsvc.fit(training)
+```
+
+>Print the coefficients and intercept for the Linear SVC.
+```scala
+println(s"Coefficients: ${lsvcModel.coefficients} Intercept: ${lsvcModel.intercept}")
+```
+
+
+## Practice 7
+
+>Import Libraries
+```scala
+import org.apache.spark.ml.classification.{LogisticRegression, OneVsRest}
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+```
+
+>Load the file
+```scala
+val inputData = spark.read.format("libsvm").load("sample_multiclass_classification_data.txt")
+```
+
+>Generate the division of the train and test set.
+```scala
+val Array(train, test) = inputData.randomSplit(Array(0.8, 0.2))
+```
+
+>Instantiate the base classifier
+```scala
+val classifier = new LogisticRegression().setMaxIter(10).setTol(1E-6).setFitIntercept(true)
+```
+
+>An instance of the One Vs Rest classifier is created.
+```scala
+val ovr = new OneVsRest().setClassifier(classifier)
+```
+
+>Train the multiclass model.
+```scala
+val ovrModel = ovr.fit(train)
+```
+
+>The model is scored on the test data (test).
+```scala
+val predictions = ovrModel.transform(test)
+```
+
+>The evaluator is obtained
+```scala
+val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
+```
+
+>The classification error is calculated on the test data.
+```scala
+val accuracy = evaluator.evaluate(predictions)
+println(s"Test Error = ${1 - accuracy}")
+```
+
+
+## Practice 8
+
+
+```scala
+import org.apache.spark.ml.classification.NaiveBayes
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.sql.SparkSession
+```
+
+>Load data in LIBSVM storage format as a DataFrame.
+```scala
+val data = spark.read.format("libsvm").load("C:/Users/brise/Documents/GitHub/NaiveBayes/sample_libsvm_data.txt")
+println ("Numero de lineas en el archivo de datos:" + data.count ())
+```
+
+>Show 20 lines by default
+```scala
+data.show()
+```
+
+>Randomly divide the data set into training set and test set according to the given weights. You can also specify a seed
+```scala
+val Array (trainingData, testData) = data.randomSplit (Array (0.7, 0.3), 100L) 
+```
+
+>Incorporate into training set (fit operation) to train a Bayesian model
+```scala
+val naiveBayesModel = new NaiveBayes().fit(trainingData)
+```
+
+>The model calls transform () to make predictions and generate a new DataFrame
+```scala
+val predictions = naiveBayesModel.transform(testData)
+```
+
+>Output data from prediction results
+```scala
+predictions.show()
+ ```
+
+ >Accuracy evaluation of the model
+```scala
+val evaluator = new MulticlassClassificationEvaluator().setLabelCol("label").setPredictionCol("prediction").setMetricName("accuracy")
+val precision = evaluator.evaluate (predictions)
+println ("tasa de error =" + (1-precision))
+```
+

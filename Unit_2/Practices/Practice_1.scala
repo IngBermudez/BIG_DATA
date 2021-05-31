@@ -23,7 +23,6 @@ println(s"Spearman correlation matrix:\n $coeff2")
 
 
 import org.apache.spark.ml.linalg.{Vector, Vectors}
-//Tambien se utiliza la libreria de chiSquare para realizar los calculos necesarios
 import org.apache.spark.ml.stat.ChiSquareTest
 
 val data = Seq(

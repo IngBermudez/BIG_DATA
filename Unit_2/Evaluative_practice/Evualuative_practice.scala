@@ -20,7 +20,7 @@ val label = new StringIndexer().setInputCol("species").setOutputCol("label")
 val labeltransform = label.fit(data).transform(data)
 labeltransform.show()
 
-val Features = (new VectorAssembler (). setInputCols (Array ("sepal_length", "sepal_width", "petal_length", "petal_width")). setOutputCol ("features"))
+val Features = (new VectorAssembler().setInputCols(Array ("sepal_length", "sepal_width", "petal_length", "petal_width")).setOutputCol("features"))
 val data2 = Features.transform (labeltransform)
 data2.show()
 
@@ -51,3 +51,26 @@ data2.show(5)
 |         5.0|        3.6|         1.4|        0.2| setosa|  0.0|[5.0,3.6,1.4,0.2]|
 +------------+-----------+------------+-----------+-------+-----+-----------------+
 */
+
+//5. Usa el método describe para aprender más sobre los datos
+data2.describe()
+
+//6. Haga la transformación pertinente para los datos categóricos los cuales serán nuestras etiquetas a clasificar 
+val data3 = data2.select("features", "label")
+data3.show()
+
+val splits = data3.randomSplit(Array(0.7, 0.3), seed = 1234L)
+val train = splits(0)
+val test = splits(1)
+
+//7.Construya el modelo de clasificación y explique su arquitectura 
+val layers = Array[Int](4, 5, 4, 3)
+val trainer = new MultilayerPerceptronClassifier().setLayers(layers).setBlockSize(128).setSeed(1234L).setMaxIter(100)
+
+val model = trainer.fit(train)
+val result = model.transform(test)
+val predictionAndLabels = result.select("prediction", "label")
+val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
+
+//8.imprima los resultados del modelo 
+println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")

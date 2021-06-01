@@ -22,8 +22,7 @@ Table of contents
         - [Practice 4](#practice-4-1)
         - [Practice 5](#practice-5-1)
   - [Evaluative Practice](#evaluative-practice-1)
-    - [Introduction](#introduction)
-
+    
 
 <div id='pr1' />
 
@@ -1104,6 +1103,31 @@ Output -> res6: org.apache.spark.sql.DataFrame = [summary: string, sepal_length:
 val data3 = data2.select("features", "label")
 data3.show()
 
++-----------------+-----+
+|         features|label|
++-----------------+-----+
+|[5.1,3.5,1.4,0.2]|  2.0|
+|[4.9,3.0,1.4,0.2]|  2.0|
+|[4.7,3.2,1.3,0.2]|  2.0|
+|[4.6,3.1,1.5,0.2]|  2.0|
+|[5.0,3.6,1.4,0.2]|  2.0|
+|[5.4,3.9,1.7,0.4]|  2.0|
+|[4.6,3.4,1.4,0.3]|  2.0|
+|[5.0,3.4,1.5,0.2]|  2.0|
+|[4.4,2.9,1.4,0.2]|  2.0|
+|[4.9,3.1,1.5,0.1]|  2.0|
+|[5.4,3.7,1.5,0.2]|  2.0|
+|[4.8,3.4,1.6,0.2]|  2.0|
+|[4.8,3.0,1.4,0.1]|  2.0|
+|[4.3,3.0,1.1,0.1]|  2.0|
+|[5.8,4.0,1.2,0.2]|  2.0|
+|[5.7,4.4,1.5,0.4]|  2.0|
+|[5.4,3.9,1.3,0.4]|  2.0|
+|[5.1,3.5,1.4,0.3]|  2.0|
+|[5.7,3.8,1.7,0.3]|  2.0|
+|[5.1,3.8,1.5,0.3]|  2.0|
++-----------------+-----+
+
 val splits = data3.randomSplit(Array(0.7, 0.3), seed = 1234L)
 val train = splits(0)
 val test = splits(1)
@@ -1131,4 +1155,5 @@ val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy"
 >The precision value of the model is printed
 ```scala
 println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")
+Test set accuracy = 0.95
 ```

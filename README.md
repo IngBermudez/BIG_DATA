@@ -998,3 +998,66 @@ val precision = evaluator.evaluate (predictions)
 println ("tasa de error =" + (1-precision))
 ```
 
+## Evaluative practice
+>we find a large number of libraries, from vector control to conversion of categorical data to numeric with StringIndexer
+```Scala
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.ml.feature.StringIndexer
+import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.ml.classification.MultilayerPerceptronClassifier
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+```
+
+>  Loading the data from Iris.csv into a dataframe and transformation.
+
+
+```scala
+val data  = spark.read.option("header","true").option("inferSchema", "true").format("csv").load("C:/iris.csv")
+```
+>We create the data variable that with a spark.read will obtain all the data from a csv file called iris, this dataframe needs to be transformed into the form "label" and "features"
+
+```scala
+val label = new StringIndexer().setInputCol("species").setOutputCol("label")
+val labeltransform = label.fit(data).transform(data)
+```
+>The label variable will be a StringIndexer, what this method does is take the string values of a column and then transform them into numerical values
+
+
+
+```Scala
+val Features = (new VectorAssembler().setInputCols(Array ("sepal_length", "sepal_width", "petal_length", "petal_width")).setOutputCol("features"))
+val data2 = vectorFeatures.transform (labeltransform)
+```
+ > there are 4 columns, for this the Features column will be a newAssembler vector, this method is in charge of transforming several columns to convert them into a vector. In setInputCols we create an array with all the columns and in setOutputcol is the name of the column that will contain the vectors, which will be features. 
+
+> Knowing the dataframe
+```scala
+data2.columns
+   // Output -> Array[String] = Array(sepal_length, sepal_width, petal_length, petal_width, species, label, features)
+```
+>We print the columns of data 2, the response is an array containing sepal_lenght, sepal_width, petal_lenght, petal width, species, label and features
+
+```scala   
+data2.schema
+// Output res3: org.apache.spark.sql.types.StructType = StructType(StructField(sepal_length,DoubleType,true), StructField(sepal_width,DoubleType,true), StructField(petal_length,DoubleType,true), 
+//StructField(petal_width,DoubleType,true), StructField(species,StringType,true), StructField(label,DoubleType,false), 
+//StructField(features,org.apache.spark.ml.linalg.VectorUDT@3bfc3ba7,true))
+```
+>hen printing the schema we know the type of data that our dataframe has, the first 4 columns are of type Double and true, in species it marks that it is string, while label is Double and features is a vector.
+
+```scala
+data2.show(5)
+/*
++------------+-----------+------------+-----------+-------+-----+-----------------+
+|sepal_length|sepal_width|petal_length|petal_width|species|label|         features|
++------------+-----------+------------+-----------+-------+-----+-----------------+
+|         5.1|        3.5|         1.4|        0.2| setosa|  0.0|[5.1,3.5,1.4,0.2]|
+|         4.9|        3.0|         1.4|        0.2| setosa|  0.0|[4.9,3.0,1.4,0.2]|
+|         4.7|        3.2|         1.3|        0.2| setosa|  0.0|[4.7,3.2,1.3,0.2]|
+|         4.6|        3.1|         1.5|        0.2| setosa|  0.0|[4.6,3.1,1.5,0.2]|
+|         5.0|        3.6|         1.4|        0.2| setosa|  0.0|[5.0,3.6,1.4,0.2]|
++------------+-----------+------------+-----------+-------+-----+-----------------+
+*/
+```
+>We print the first 5 rows of Data2

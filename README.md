@@ -999,19 +999,27 @@ println ("tasa de error =" + (1-precision))
 ```
 
 ## Evaluative practice
+
+1. Upload to an Iris.csv dataframe found at https://github.com/jcromerohdz/iris, build the data clean
+necessary to be processed by the following algorithm (Important, this cleaning must be
+via a Scala script in Spark).
+
 >we find a large number of libraries, from vector control to conversion of categorical data to numeric with StringIndexer
 ```Scala
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.ml.linalg.Vectors
-import org.apache.spark.ml.classification.MultilayerPerceptronClassifier
+import org.apache.spark.ml.classification.
+```
+a. Use the Spark Mllib library the Machine Learning algorithm corresponding to multilayer perceptron
+```scala
+MultilayerPerceptronClassifier
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 ```
 
+
 >  Loading the data from Iris.csv into a dataframe and transformation.
-
-
 ```scala
 val data  = spark.read.option("header","true").option("inferSchema", "true").format("csv").load("C:/iris.csv")
 ```
@@ -1032,12 +1040,15 @@ val data2 = vectorFeatures.transform (labeltransform)
  > there are 4 columns, for this the Features column will be a newAssembler vector, this method is in charge of transforming several columns to convert them into a vector. In setInputCols we create an array with all the columns and in setOutputcol is the name of the column that will contain the vectors, which will be features. 
 
 > Knowing the dataframe
+
+2. What are the names of the columns?
 ```scala
 data2.columns
    // Output -> Array[String] = Array(sepal_length, sepal_width, petal_length, petal_width, species, label, features)
 ```
 >We print the columns of data 2, the response is an array containing sepal_lenght, sepal_width, petal_lenght, petal width, species, label and features
 
+3. What is the scheme like?
 ```scala   
 data2.schema
 // Output res3: org.apache.spark.sql.types.StructType = StructType(StructField(sepal_length,DoubleType,true), StructField(sepal_width,DoubleType,true), StructField(petal_length,DoubleType,true), 
@@ -1046,6 +1057,7 @@ data2.schema
 ```
 >hen printing the schema we know the type of data that our dataframe has, the first 4 columns are of type Double and true, in species it marks that it is string, while label is Double and features is a vector.
 
+4. Print the first 5 columns.
 ```scala
 data2.show(5)
 /*
@@ -1061,3 +1073,62 @@ data2.show(5)
 */
 ```
 >We print the first 5 rows of Data2
+
+5. Use the describe method to learn more about the data
+
+>As we already know, it describes shows us the information of the metadata. With this form we can see that it is not possible to visualize all the information, instead we add the show () function and we can see the complete data
+
+```scala
+data2.describe()
+
+Output -> res6: org.apache.spark.sql.DataFrame = [summary: string, sepal_length: string ... 5 more fields]
+```
+```scala
+ data2.describe().show()
++-------+------------------+-------------------+------------------+------------------+---------+------------------+
+|summary|      sepal_length|        sepal_width|      petal_length|       petal_width|  species|             label|
++-------+------------------+-------------------+------------------+------------------+---------+------------------+
+|  count|               150|                150|               150|               150|      150|               150|
+|   mean| 5.843333333333335| 3.0540000000000007|3.7586666666666693|1.1986666666666672|     null|               1.0|
+| stddev|0.8280661279778637|0.43359431136217375| 1.764420419952262|0.7631607417008414|     null|0.8192319205190403|
+|    min|               4.3|                2.0|               1.0|               0.1|   setosa|               0.0|
+|    max|               7.9|                4.4|               6.9|               2.5|virginica|               2.0|
++-------+------------------+-------------------+------------------+------------------+---------+------------------+
+```
+
+
+6. Make the pertinent transformation for the categorical data which will be our labels to be classified
+
+>We make a new dataframe by selecting the features and label columns of data2. We separate the information in a percentage of 70 and 30 with a seed of randomness, then we separate that information into the training and testing variables
+```scala
+val data3 = data2.select("features", "label")
+data3.show()
+
+val splits = data3.randomSplit(Array(0.7, 0.3), seed = 1234L)
+val train = splits(0)
+val test = splits(1)
+```
+
+7. build the classification model and explain its architecture
+
+>We specify the layers of the neural network of our model, it will have an input of 4 characteristics, 2 hidden layers of 5 and 4 and an output of 3. Then we create the training variable with the multilayerperceptronClassifier and set all the necessary parameters.
+```scala
+val layers = Array[Int](4, 5, 4, 3)
+
+val trainer = new MultilayerPerceptronClassifier().setLayers(layers).setBlockSize(128).setSeed(1234L).setMaxIter(100)
+```
+
+>Within the new model value we add the trainer adjusting it to the training values that we separated a while ago. then we grab the values of the model to transform them into a mutable map. Finally we evaluate the model for its prediction performance
+```scala
+val model = trainer.fit(train)
+val result = model.transform(test)
+val predictionAndLabels = result.select("prediction", "label")
+val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
+```
+
+8. print the model results
+
+>The precision value of the model is printed
+```scala
+println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")
+```

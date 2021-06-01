@@ -5,7 +5,7 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
 
 // We load the txt file of the established path
-val data = spark.read.format("libsvm").load("sample_libsvm_data.txt")
+val data = spark.read.format("libsvm").load("C:/Users/the_g/Documents/GitHub/BIG_DATA/Unit_2/Practices/sample_libsvm_data.txt")
 
 
 //We will create a column using stringIndexer so that the data has its categorization

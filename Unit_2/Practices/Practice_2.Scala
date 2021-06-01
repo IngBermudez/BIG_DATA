@@ -18,7 +18,7 @@ object DecisionTree {
       .getOrCreate()
 
 // Load the data stored in LIBSVM format as a DataFrame.
-val data = spark.read.format("libsvm").load("C:/sample_libsvm_data.txt")
+val data = spark.read.format("libsvm").load("C:/Users/the_g/Documents/GitHub/BIG_DATA/Unit_2/Practices/sample_libsvm_data.txt")
 
 // Index labels, adding metadata to the label column.
 // Fit on whole dataset to include all labels into the index.

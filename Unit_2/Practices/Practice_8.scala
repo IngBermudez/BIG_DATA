@@ -2,7 +2,7 @@ import org.apache.spark.ml.classification.NaiveBayes
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.sql.SparkSession
 
-val data = spark.read.format("libsvm").load("C:/Users/brise/Documents/GitHub/NaiveBayes/sample_libsvm_data.txt")
+val data =spark.read.format("libsvm").load("C:/Users/the_g/Documents/GitHub/BIG_DATA/Unit_2/Practices/sample_libsvm_data.txt")
 
 println ("Numero de lineas en el archivo de datos:" + data.count ())
 

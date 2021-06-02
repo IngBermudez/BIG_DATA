@@ -21,6 +21,9 @@ Table of contents
         - [Practice 3](#practice-3-1)
         - [Practice 4](#practice-4-1)
         - [Practice 5](#practice-5-1)
+        - [Practice 6](#practice-6-1)
+        - [Practice 7](#practice-7-1)
+        - [Practice 8](#practice-8-1)
   - [Evaluative Practice](#evaluative-practice-1)
     
 

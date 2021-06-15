@@ -1211,3 +1211,42 @@ val dataset = spark.read.option("header","true").option("inferSchema","true").cs
 ```scala
 val feature_data = dataset.select("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper", "Delicassen")
 ```
+
+7. Import Vector Assembler and Vector
+>The libraries for vector groupings, VectorAssembler and Vector are imported
+
+```Scala
+import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.ml.linalg.Vectors
+```
+
+8. Create a new Vector Assembler object for the feature columns as an input set, remembering that there are no labels
+>An object is created in which the columns of the feature_data dataset are grouped in an array and named Features
+```Scala
+val VectorA = new VectorAssembler().setInputCols (Array ("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper", "Delicassen")). setOutputCol ("features")
+```
+
+
+9. Use the assembler object to transform feature_data
+>A variable is created where the transformation of the VectorAssembler is performed to see it in a readable way
+```Scala
+val output= VectorA.transform(feature_data)
+```
+
+10.  Create a Kmeans model with K = 3
+> The kmeans object is created to place the cluster number k = 3 and the seed 1L. The model for the kmeans object is created with the data from the output dataset which is our already normalized vector
+```Scala
+val kmeans = new KMeans().setK(3).setSeed(1L)
+val model = kmeans.fit(output)
+```
+
+
+11.  Evaluate groups using Within Set Sum of Squared Errors WSSSE and print centroids.
+>The WSSE variable is created where we show the sum of the squared distances of the points to their closest center for the data output model and we print this value. The centroids of the clusters are printed taking into account the model and the centroids that were generated with a foreach
+```Scala
+val WSSE = model.computeCost(output)
+println(s"Within set sum of Squared Errors = $WSSE")
+
+println("Cluster Centers: ")
+model.clusterCenters.foreach(println)
+```

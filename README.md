@@ -4,14 +4,28 @@
 **Content**
 
 Table of contents
+- [Unit 1](#unit-1)
+    - [Practices](#practices-1-1)
+        - [Practice 1](#practice-1)
+        - [Practice 2](#practice-2)
+        - [Practice 3](#practice-3)
+    - [Investigation](#investigation)
+        - [Pair Coding](#pair-coding)
+        - [Pair Coding 2](#pair-coding-2)
+    - [Evaluative Practice](#evaluative-practice)
 
-- [Practice 1](#practice-1)
-- [Practice 2](#practice-2)
-- [Practice 3](#practice-3)
-- [Investigation](#investigation)
-    - [Pair Coding](#pair-coding)
-    - [Pair Coding 2](#pair-coding-2)
-- [Evaluative Practice](#evaluative-practice)
+- [Unit 2](#unit-2)
+    - [Practices](#practices-1-1)
+        - [Practice 1](#practice-1-1)
+        - [Practice 2](#practice-2-1)
+        - [Practice 3](#practice-3-1)
+        - [Practice 4](#practice-4)
+        - [Practice 5](#practice-5)
+        - [Practice 6](#practice-6)
+        - [Practice 7](#practice-7)
+        - [Practice 8](#practice-8)
+  - [Evaluative Practice](#evaluative-practice-1)
+    
 
 <div id='pr1' />
 
@@ -454,3 +468,695 @@ clavg.show
 |          2| 254.1954634020619|
 +-----------+------------------+
 ``` 
+
+
+# Unit 2
+## Practices 
+---
+## Practice 1
+
+1. Correlation
+
+>We start with this 3 librarys to have access to local arrays and Factory Methods for Vector, to use the correlation method and to allow a row value to be accessed through generic ordinal access, as well as primitive access
+
+```scala
+import org.apache.spark.ml.linalg.{Matrix, Vectors}
+import org.apache.spark.ml.stat.Correlation
+import org.apache.spark.sql.Row
+```
+
+>Create dense and sparse vectors from their values, within the matrix
+```scala
+val data = Seq(
+   (4, Seq((0, 1.0), (3, -2.0))),
+  Vectors.dense(4.0, 5.0, 0.0, 3.0),
+  Vectors.dense(6.0, 7.0, 0.0, 8.0),
+  Vectors.sparse(4, Seq((0, 9.0), (3, 1.0)))
+)
+```
+>The data is extracted from our matrix and a dataframe is created regarding the characteristics, then The Pearson correlation matrix is created using the data frame and we ask for the first values with head. To end  we print the result
+```scala
+val df = data.map(Tuple1.apply).toDF("features")
+val Row(coeff1: Matrix) = Correlation.corr(df, "features").head
+println(s"Pearson correlation matrix:\n $coeff1")
+```
+
+>The Spearman correlation matrix is created using the dataframe that we just created then we ask for the first values with head and  we print the result
+```scala
+val Row(coeff2: Matrix) = Correlation.corr(df, "features", "spearman").head
+println(s"Spearman correlation matrix:\n $coeff2")
+```
+
+
+2. Hypothesis testing
+
+>the following librarys is used to apply methods to vectors  and The chiSquare library is also used to perform the necessary calculations
+```scala
+import org.apache.spark.ml.linalg.{Vector, Vectors}
+import org.apache.spark.ml.stat.ChiSquareTest
+``` 
+
+>the following sequence of dense vectors is created
+```scala
+val data = Seq(
+  (0.0, Vectors.dense(0.5, 10.0)),
+  (0.0, Vectors.dense(1.5, 20.0)),
+  (1.0, Vectors.dense(1.5, 30.0)),
+  (0.0, Vectors.dense(3.5, 30.0)),
+  (0.0, Vectors.dense(3.5, 40.0)),
+  (1.0, Vectors.dense(3.5, 40.0))
+)
+```
+
+>Creation of the dataframe from the previous set of vectors then the first values  are taken, and last we Initially with the parts of the test, the values of p will be searched
+```scala
+val df = data.toDF("label", "features")
+val chi = ChiSquareTest.test(df, "features", "label").head
+println(s"pValues = ${chi.getAs[Vector](0)}")
+``` 
+
+>After the model's degrees of freedom will be searched
+```scala
+println(s"degreesOfFreedom ${chi.getSeq[Int](1).mkString("[", ",", "]")}")
+```
+>finally certain values are extracted from a given vector all based on the chi square function
+```scala
+println(s"statistics ${chi.getAs[Vector](2)}")
+```
+
+3. Summarizer
+
+>import of necessary libraries, in this use of vectors and the summarizer itself
+```scala
+import spark.implicits._    
+import Summarizer._
+```
+>create a set of vectors or sequence
+```scala
+val data = Seq(
+  (Vectors.dense(2.0, 3.0, 5.0), 1.0),
+  (Vectors.dense(4.0, 6.0, 7.0), 2.0)
+)
+```
+
+>Creation of the dataframe from the vectors
+```scala
+val df = data.toDF("features", "weight")
+```
+
+>use the summarizer library to obtain the mean and variance of some data in the requested dataframe
+```scala
+val (meanVal, varianceVal) = df.select(metrics("mean", "variance").summary($"features", $"weight").as("summary")).select("summary.mean", "summary.variance").as[(Vector, Vector)].first()
+```
+
+>the variables previously worked on are printed
+```scala
+println(s"with weight: mean = ${meanVal}, variance = ${varianceVal}")
+```
+
+>the process is repeated with 2 new variables
+```scala
+val (meanVal2, varianceVal2) = df.select(mean($"features"), variance($"features"))
+  .as[(Vector, Vector)].first()
+```
+
+>variable printing 
+```scala
+println(s"without weight: mean = ${meanVal2}, sum = ${varianceVal2}")
+```
+
+
+## Practice 2
+> Importing this libraries is required in order to get the example done.
+```scala
+import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.classification.DecisionTreeClassificationModel
+import org.apache.spark.ml.classification.DecisionTreeClassifier
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
+```
+> Start a simple spark session
+```scala
+import org.apache.spark.sql.SparkSession
+```
+>val spark = SparkSession.builder().getOrCreate()
+```scala
+object DecisionTree {
+  def main(args: Array[String]): Unit = {
+    val spark = SparkSession
+      .builder
+      .appName("dtree")
+      .getOrCreate()
+```
+
+> Load the data stored in LIBSVM format as a DataFrame.
+```scala
+val data = spark.read.format("libsvm").load("C:/sample_libsvm_data.txt")
+```
+> Index labels, adding metadata to the label column.
+ Fit on whole dataset to include all labels into the index.
+ ```scala
+val labelIndexer = new StringIndexer().setInputCol("label").setOutputCol("indexedLabel").fit(data)
+```
+> Automatically identify categorical features and then index them.
+```scala
+val featureIndexer = new VectorIndexer().setInputCol("features").setOutputCol("indexedFeatures").setMaxCategories(4).fit(data)
+```scala
+> Split the data into training and test sets (30% held out for testing).
+```scala
+val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3))
+```
+> Train a DecisionTree model.
+```scala
+val dt = new DecisionTreeClassifier().setLabelCol("indexedLabel").setFeaturesCol("indexedFeatures")
+```
+
+> Convert indexed labels back to original labels.
+```scala
+val labelConverter = new IndexToString().setInputCol("prediction").setOutputCol("predictedLabel").setLabels(labelIndexer.labels)
+```
+> Chain indexers and tree in a Pipeline.
+```scala
+val pipeline = new Pipeline().setStages(Array(labelIndexer, featureIndexer, dt, labelConverter))
+```
+> Train the model, this also runs the indexers.
+```scala
+val model = pipeline.fit(trainingData)
+```
+
+> Make the predictions.
+```scala
+val predictions = model.transform(testData)
+```
+> Select example rows to display. In this case there was only 5 rows to show.
+ Select (prediction, true label)
+
+ ```scala
+predictions.select("predictedLabel", "label", "features").show(5)
+val evaluator = new MulticlassClassificationEvaluator().setLabelCol("indexedLabel").setPredictionCol("prediction").setMetricName("accuracy")
+```
+> Compute the test error.
+ Show by stages the classification of the tree model
+ ```scala
+val accuracy = evaluator.evaluate(predictions)
+println(s"Test Error = ${(1.0 - accuracy)}")
+val treeModel = model.stages(2).asInstanceOf[DecisionTreeClassificationModel]
+println(s"Learned classification tree model:\n ${treeModel.toDebugString}")
+
+
+  }
+}
+```
+> Preview of the last lines output
+```Scala
+/*  +--------------+-----+--------------------+
+    |predictedLabel|label|            features|
+    +--------------+-----+--------------------+
+    |           1.0|  0.0|(692,[122,123,124...|
+    |           0.0|  0.0|(692,[122,123,148...|
+    |           0.0|  0.0|(692,[123,124,125...|
+    |           1.0|  0.0|(692,[124,125,126...|
+    |           0.0|  0.0|(692,[126,127,128...|
+    |           0.0|  0.0|(692,[126,127,128...|
+    |           0.0|  0.0|(692,[126,127,128...|
+    |           0.0|  0.0|(692,[127,128,129...|
+    |           1.0|  0.0|(692,[129,130,131...|
+    |           0.0|  0.0|(692,[152,153,154...|
+    +--------------+-----+--------------------+
+    only showing top 10 rows
+  
+  */
+```
+## Practice 3
+
+```Scala
+import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.classification.{RandomForestClassificationModel, RandomForestClassifier}
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
+import org.apache.spark.sql.SparkSession
+```
+>We create a variable to start a spark session
+```Scala
+val spark = SparkSession.builder.appName("RandomForestClassifierExample").getOrCreate()
+```
+> Load and parse the data file, converting it to a DataFrame.
+```Scala
+val data = spark.read.format("libsvm").option("numFeatures", "780").load("C:/sample_libsvm_data.txt")
+```
+> Index labels, adding metadata to the label column.
+> Fit on whole dataset to include all labels in index.
+```Scala
+val labelIndexer = new StringIndexer().setInputCol("label").setOutputCol("indexedLabel").fit(data)
+```
+> Automatically identify categorical features, and index them.
+> Set maxCategories so features with > 4 distinct values are treated as continuous.
+```Scala
+val featureIndexer = new VectorIndexer().setInputCol("features").setOutputCol("indexedFeatures").setMaxCategories(4).fit(data)
+```
+> Split the data into training and test sets (30% held out for testing).
+```Scala
+val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3))
+```
+> Train a RandomForest model.
+```Scala
+val rf = new RandomForestClassifier().setLabelCol("indexedLabel").setFeaturesCol("indexedFeatures").setNumTrees(10)
+```
+> Convert indexed labels back to original labels.
+```Scala
+val labelConverter = new IndexToString().setInputCol("prediction").setOutputCol("predictedLabel").setLabels(labelIndexer.labels)
+```
+> Chain indexers and forest in a Pipeline.
+```Scala
+val pipeline = new Pipeline().setStages(Array(labelIndexer, featureIndexer, rf, labelConverter))
+```
+> Train model. This also runs the indexers.
+```Scala
+val model = pipeline.fit(trainingData)
+```
+> Make predictions.
+```Scala
+val predictions = model.transform(testData)
+```
+> Select example rows to display.
+```Scala
+predictions.select("predictedLabel", "label", "features").show(5)
+```
+> Select (prediction, true label) and compute test error.
+```Scala
+val evaluator = new MulticlassClassificationEvaluator().setLabelCol("indexedLabel").setPredictionCol("prediction").setMetricName("accuracy")
+val accuracy = evaluator.evaluate(predictions)
+println(s"Test Error = ${(1.0 - accuracy)}")
+val rfModel = model.stages(2).asInstanceOf[RandomForestClassificationModel]
+println(s"Learned classification forest model:\n ${rfModel.toDebugString}")
+```
+
+## Practice 4
+
+> We import the libraries we occupy
+```Scala
+import org.apache.spark.ml.Pipeline
+import org.apache.spark.ml.classification.{GBTClassificationModel, GBTClassifier}
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
+```
+> We load the txt file of the established path
+```Scala
+val data = spark.read.format("libsvm").load("sample_libsvm_data.txt")
+```
+
+> We will create a column using stringIndexer so that the data has its categorization
+```Scala
+val labelIndexer = new StringIndexer()
+  .setInputCol("label")
+  .setOutputCol("indexedLabel")
+  .fit(data)
+```  
+> We create a vector that will have a maximum of 4 categories
+```Scala
+val featureIndexer = new VectorIndexer()
+  .setInputCol("features")
+  .setOutputCol("indexedFeatures")
+  .setMaxCategories(4)
+  .fit(data)
+```
+> We separate the data into two parts, one called training with 70% and the other mushroom test with 30%
+```Scala
+val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3))
+```
+> They enter the GPT model
+```Scala
+val gbt = new GBTClassifier()
+  .setLabelCol("indexedLabel")
+  .setFeaturesCol("indexedFeatures")
+  .setMaxIter(10)
+  .setFeatureSubsetStrategy("auto")
+```
+> We convert indented labels to original labels
+```Scala
+val labelConverter = new IndexToString()
+  .setInputCol("prediction")
+  .setOutputCol("predictedLabel")
+  .setLabels(labelIndexer.labels)
+```
+> The Chain of Indenters and GPT EN Pipeline
+```Scala
+val pipeline = new Pipeline()
+  .setStages(Array(labelIndexer, featureIndexer, gbt, labelConverter))
+```
+> The model is trained. This also runs the indexers
+```Scala
+val model = pipeline.fit(trainingData)
+```
+> We create the predictions.
+```Scala
+val predictions = model.transform(testData)
+```
+> We select the first 5 rows to display them
+```Scala
+predictions.select("predictedLabel", "label", "features").show(5)
+```
+> We select prediction and calculation of the test error.
+```Scala
+val evaluator = new MulticlassClassificationEvaluator()
+  .setLabelCol("indexedLabel")
+  .setPredictionCol("prediction")
+  .setMetricName("accuracy")
+val accuracy = evaluator.evaluate(predictions)
+println(s"Test Error = ${1.0 - accuracy}")
+
+val gbtModel = model.stages(2).asInstanceOf[GBTClassificationModel]
+println(s"Learned classification GBT model:\n ${gbtModel.toDebugString}")
+```
+
+## Practice 5
+
+```scala
+import org.apache.spark.ml.classification.MultilayerPerceptronClassifier
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+``` 
+
+> Load the data stored in LIBSVM format as a DataFrame.
+```Scala
+val data = spark.read.format("libsvm").load("sample_multiclass_classification_data.txt")
+```
+> Split the data into train and test
+```Scala
+val splits = data.randomSplit(Array(0.6, 0.4), seed = 1234L)
+val train = splits(0)
+val test = splits(1)
+```
+> specify layers for the neural network:
+ input layer of size 4 (features), two intermediate of size 5 and 4
+ and output of size 3 (classes)
+ ```Scala
+val layers = Array[Int](4, 5, 4, 3)
+```
+> create the trainer and set its parameters
+```Scala
+val trainer = new MultilayerPerceptronClassifier().setLayers(layers).setBlockSize(128).setSeed(1234L).setMaxIter(100)
+```
+
+> train the model
+```Scala
+val model = trainer.fit(train)
+```
+> compute accuracy on the test set
+```Scala
+val result = model.transform(test)
+val predictionAndLabels = result.select("prediction", "label")
+val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
+println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")
+```
+
+## Practice 6
+
+
+>We import the "LinearSVC" library, this binary classifier optimizes the hinge loss using the OWLQN optimizer.
+```scala
+import org.apache.spark.ml.classification.LinearSVC
+```
+
+>We import and create the session in spark.
+```scala
+import org.apache.spark.sql.SparkSession
+val spark = SparkSession.builder.appName("LinearSVCExample").getOrCreate()
+```
+>We load the training data.
+```scala
+val training = spark.read.format("libsvm").load("/Archivos/sample_libsvm_data.txt")
+```
+
+>We set the maximum number of iterations and the regularization parameter.
+```scala
+val lsvc = new LinearSVC().setMaxIter(10).setRegParam(0.1)
+```
+
+>We carry out a fit to adjust the model.
+```scala
+val lsvcModel = lsvc.fit(training)
+```
+
+>Print the coefficients and intercept for the Linear SVC.
+```scala
+println(s"Coefficients: ${lsvcModel.coefficients} Intercept: ${lsvcModel.intercept}")
+```
+
+
+## Practice 7
+
+>Import Libraries
+```scala
+import org.apache.spark.ml.classification.{LogisticRegression, OneVsRest}
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+```
+
+>Load the file
+```scala
+val inputData = spark.read.format("libsvm").load("sample_multiclass_classification_data.txt")
+```
+
+>Generate the division of the train and test set.
+```scala
+val Array(train, test) = inputData.randomSplit(Array(0.8, 0.2))
+```
+
+>Instantiate the base classifier
+```scala
+val classifier = new LogisticRegression().setMaxIter(10).setTol(1E-6).setFitIntercept(true)
+```
+
+>An instance of the One Vs Rest classifier is created.
+```scala
+val ovr = new OneVsRest().setClassifier(classifier)
+```
+
+>Train the multiclass model.
+```scala
+val ovrModel = ovr.fit(train)
+```
+
+>The model is scored on the test data (test).
+```scala
+val predictions = ovrModel.transform(test)
+```
+
+>The evaluator is obtained
+```scala
+val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
+```
+
+>The classification error is calculated on the test data.
+```scala
+val accuracy = evaluator.evaluate(predictions)
+println(s"Test Error = ${1 - accuracy}")
+```
+
+
+## Practice 8
+
+
+```scala
+import org.apache.spark.ml.classification.NaiveBayes
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+import org.apache.spark.sql.SparkSession
+```
+
+>Load data in LIBSVM storage format as a DataFrame.
+```scala
+val data = spark.read.format("libsvm").load("C:/Users/brise/Documents/GitHub/NaiveBayes/sample_libsvm_data.txt")
+println ("Numero de lineas en el archivo de datos:" + data.count ())
+```
+
+>Show 20 lines by default
+```scala
+data.show()
+```
+
+>Randomly divide the data set into training set and test set according to the given weights. You can also specify a seed
+```scala
+val Array (trainingData, testData) = data.randomSplit (Array (0.7, 0.3), 100L) 
+```
+
+>Incorporate into training set (fit operation) to train a Bayesian model
+```scala
+val naiveBayesModel = new NaiveBayes().fit(trainingData)
+```
+
+>The model calls transform () to make predictions and generate a new DataFrame
+```scala
+val predictions = naiveBayesModel.transform(testData)
+```
+
+>Output data from prediction results
+```scala
+predictions.show()
+ ```
+
+ >Accuracy evaluation of the model
+```scala
+val evaluator = new MulticlassClassificationEvaluator().setLabelCol("label").setPredictionCol("prediction").setMetricName("accuracy")
+val precision = evaluator.evaluate (predictions)
+println ("tasa de error =" + (1-precision))
+```
+
+## Evaluative practice
+
+1. Upload to an Iris.csv dataframe found at https://github.com/jcromerohdz/iris, build the data clean
+necessary to be processed by the following algorithm (Important, this cleaning must be
+via a Scala script in Spark).
+
+>we find a large number of libraries, from vector control to conversion of categorical data to numeric with StringIndexer
+```Scala
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.ml.feature.StringIndexer
+import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.ml.classification.
+```
+a. Use the Spark Mllib library the Machine Learning algorithm corresponding to multilayer perceptron
+```scala
+MultilayerPerceptronClassifier
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
+```
+
+
+>  Loading the data from Iris.csv into a dataframe and transformation.
+```scala
+val data  = spark.read.option("header","true").option("inferSchema", "true").format("csv").load("C:/iris.csv")
+```
+>We create the data variable that with a spark.read will obtain all the data from a csv file called iris, this dataframe needs to be transformed into the form "label" and "features"
+
+```scala
+val label = new StringIndexer().setInputCol("species").setOutputCol("label")
+val labeltransform = label.fit(data).transform(data)
+```
+>The label variable will be a StringIndexer, what this method does is take the string values of a column and then transform them into numerical values
+
+
+
+```Scala
+val Features = (new VectorAssembler().setInputCols(Array ("sepal_length", "sepal_width", "petal_length", "petal_width")).setOutputCol("features"))
+val data2 = vectorFeatures.transform (labeltransform)
+```
+ > there are 4 columns, for this the Features column will be a newAssembler vector, this method is in charge of transforming several columns to convert them into a vector. In setInputCols we create an array with all the columns and in setOutputcol is the name of the column that will contain the vectors, which will be features. 
+
+> Knowing the dataframe
+
+2. What are the names of the columns?
+```scala
+data2.columns
+   // Output -> Array[String] = Array(sepal_length, sepal_width, petal_length, petal_width, species, label, features)
+```
+>We print the columns of data 2, the response is an array containing sepal_lenght, sepal_width, petal_lenght, petal width, species, label and features
+
+3. What is the scheme like?
+```scala   
+data2.schema
+// Output res3: org.apache.spark.sql.types.StructType = StructType(StructField(sepal_length,DoubleType,true), StructField(sepal_width,DoubleType,true), StructField(petal_length,DoubleType,true), 
+//StructField(petal_width,DoubleType,true), StructField(species,StringType,true), StructField(label,DoubleType,false), 
+//StructField(features,org.apache.spark.ml.linalg.VectorUDT@3bfc3ba7,true))
+```
+>hen printing the schema we know the type of data that our dataframe has, the first 4 columns are of type Double and true, in species it marks that it is string, while label is Double and features is a vector.
+
+4. Print the first 5 columns.
+```scala
+data2.show(5)
+/*
++------------+-----------+------------+-----------+-------+-----+-----------------+
+|sepal_length|sepal_width|petal_length|petal_width|species|label|         features|
++------------+-----------+------------+-----------+-------+-----+-----------------+
+|         5.1|        3.5|         1.4|        0.2| setosa|  0.0|[5.1,3.5,1.4,0.2]|
+|         4.9|        3.0|         1.4|        0.2| setosa|  0.0|[4.9,3.0,1.4,0.2]|
+|         4.7|        3.2|         1.3|        0.2| setosa|  0.0|[4.7,3.2,1.3,0.2]|
+|         4.6|        3.1|         1.5|        0.2| setosa|  0.0|[4.6,3.1,1.5,0.2]|
+|         5.0|        3.6|         1.4|        0.2| setosa|  0.0|[5.0,3.6,1.4,0.2]|
++------------+-----------+------------+-----------+-------+-----+-----------------+
+*/
+```
+>We print the first 5 rows of Data2
+
+5. Use the describe method to learn more about the data
+
+>As we already know, it describes shows us the information of the metadata. With this form we can see that it is not possible to visualize all the information, instead we add the show () function and we can see the complete data
+
+```scala
+data2.describe()
+
+Output -> res6: org.apache.spark.sql.DataFrame = [summary: string, sepal_length: string ... 5 more fields]
+```
+```scala
+ data2.describe().show()
++-------+------------------+-------------------+------------------+------------------+---------+------------------+
+|summary|      sepal_length|        sepal_width|      petal_length|       petal_width|  species|             label|
++-------+------------------+-------------------+------------------+------------------+---------+------------------+
+|  count|               150|                150|               150|               150|      150|               150|
+|   mean| 5.843333333333335| 3.0540000000000007|3.7586666666666693|1.1986666666666672|     null|               1.0|
+| stddev|0.8280661279778637|0.43359431136217375| 1.764420419952262|0.7631607417008414|     null|0.8192319205190403|
+|    min|               4.3|                2.0|               1.0|               0.1|   setosa|               0.0|
+|    max|               7.9|                4.4|               6.9|               2.5|virginica|               2.0|
++-------+------------------+-------------------+------------------+------------------+---------+------------------+
+```
+
+
+6. Make the pertinent transformation for the categorical data which will be our labels to be classified
+
+>We make a new dataframe by selecting the features and label columns of data2. We separate the information in a percentage of 70 and 30 with a seed of randomness, then we separate that information into the training and testing variables
+```scala
+val data3 = data2.select("features", "label")
+data3.show()
+
++-----------------+-----+
+|         features|label|
++-----------------+-----+
+|[5.1,3.5,1.4,0.2]|  2.0|
+|[4.9,3.0,1.4,0.2]|  2.0|
+|[4.7,3.2,1.3,0.2]|  2.0|
+|[4.6,3.1,1.5,0.2]|  2.0|
+|[5.0,3.6,1.4,0.2]|  2.0|
+|[5.4,3.9,1.7,0.4]|  2.0|
+|[4.6,3.4,1.4,0.3]|  2.0|
+|[5.0,3.4,1.5,0.2]|  2.0|
+|[4.4,2.9,1.4,0.2]|  2.0|
+|[4.9,3.1,1.5,0.1]|  2.0|
+|[5.4,3.7,1.5,0.2]|  2.0|
+|[4.8,3.4,1.6,0.2]|  2.0|
+|[4.8,3.0,1.4,0.1]|  2.0|
+|[4.3,3.0,1.1,0.1]|  2.0|
+|[5.8,4.0,1.2,0.2]|  2.0|
+|[5.7,4.4,1.5,0.4]|  2.0|
+|[5.4,3.9,1.3,0.4]|  2.0|
+|[5.1,3.5,1.4,0.3]|  2.0|
+|[5.7,3.8,1.7,0.3]|  2.0|
+|[5.1,3.8,1.5,0.3]|  2.0|
++-----------------+-----+
+
+val splits = data3.randomSplit(Array(0.7, 0.3), seed = 1234L)
+val train = splits(0)
+val test = splits(1)
+```
+
+7. build the classification model and explain its architecture
+
+>We specify the layers of the neural network of our model, it will have an input of 4 characteristics, 2 hidden layers of 5 and 4 and an output of 3. Then we create the training variable with the multilayerperceptronClassifier and set all the necessary parameters.
+```scala
+val layers = Array[Int](4, 5, 4, 3)
+
+val trainer = new MultilayerPerceptronClassifier().setLayers(layers).setBlockSize(128).setSeed(1234L).setMaxIter(100)
+```
+
+>Within the new model value we add the trainer adjusting it to the training values that we separated a while ago. then we grab the values of the model to transform them into a mutable map. Finally we evaluate the model for its prediction performance
+```scala
+val model = trainer.fit(train)
+val result = model.transform(test)
+val predictionAndLabels = result.select("prediction", "label")
+val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
+```
+
+8. print the model results
+
+>The precision value of the model is printed
+```scala
+println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")
+Test set accuracy = 0.95
+```

@@ -25,6 +25,9 @@ Table of contents
         - [Practice 7](#practice-7)
         - [Practice 8](#practice-8)
   - [Evaluative Practice](#evaluative-practice-1)
+  
+- [Unit 3](#unit-3)
+  - [Evaluative Practice](#evaluative-practice-2)
     
 
 <div id='pr1' />
@@ -1057,7 +1060,7 @@ data2.schema
 //StructField(petal_width,DoubleType,true), StructField(species,StringType,true), StructField(label,DoubleType,false), 
 //StructField(features,org.apache.spark.ml.linalg.VectorUDT@3bfc3ba7,true))
 ```
->hen printing the schema we know the type of data that our dataframe has, the first 4 columns are of type Double and true, in species it marks that it is string, while label is Double and features is a vector.
+>Then printing the schema we know the type of data that our dataframe has, the first 4 columns are of type Double and true, in species it marks that it is string, while label is Double and features is a vector.
 
 4. Print the first 5 columns.
 ```scala
@@ -1160,3 +1163,94 @@ val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy"
 println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")
 Test set accuracy = 0.95
 ```
+
+
+# Unit 3
+---
+## Evaluative practice
+
+
+1. Import a simple Spark session.
+
+>The library is imported to perform the spark session
+```scala
+import org.apache.spark.sql.SparkSession
+```
+
+2. Use lines of code to minimize errors
+
+>The Log4j library serves to minimize the severity of some errors. level.ERROR allows us to minimize various runtime errors or unexpected conditions. making them immediately visible in a status console.
+```scala
+import org.apache.log4j._
+Logger.getLogger("org").setLevel(Level.ERROR)
+```
+
+3. Create an instance of the Spark session
+
+>We create a variable to get an existing SparkSession or, if none exists, create a new one based on the options set in this constructor
+```scala
+val spark = SparkSession.builder().getOrCreate()
+```
+
+
+4. Import the Kmeans library for the clustering algorithm
+
+>The library that allows us to work with the kmeans grouping algorithm is imported
+```scala
+import org.apache.spark.ml.clustering.KMeans
+```
+
+5. Loads the Wholesale Customers Data dataset
+
+>For the dataset we make it load it into a variable. We add the functions we want, in this case we will use the "inferschema" option that will help us later, it is by default false.
+```scala
+val dataset = spark.read.option("header","true").option("inferSchema","true").csv("C:/Users/the_g/Documents/Github/BIG_DATA/Unit_3/Evaluative_Practice/Wholesale customers data.csv")
+```
+
+
+6. Select the following columns: Fresh, Milk, Grocery, Frozen, Detergents_Paper, Delicassen and call this set feature_data
+
+>Within a constant we make a dataset based on the characteristics in this case the Fresh, Milk, Grocery, Frozen, Detergents_Paper, Delicassen columns of our original dataset
+```scala
+val feature_data = dataset.select("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper", "Delicassen")
+```
+
+7. Import Vector Assembler and Vector
+>The libraries for vector groupings, VectorAssembler and Vector are imported
+
+```Scala
+import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.ml.linalg.Vectors
+```
+
+8. Create a new Vector Assembler object for the feature columns as an input set, remembering that there are no labels
+>An object is created in which the columns of the feature_data dataset are grouped in an array and named Features
+```Scala
+val VectorA = new VectorAssembler().setInputCols (Array ("Fresh", "Milk", "Grocery", "Frozen", "Detergents_Paper", "Delicassen")). setOutputCol ("features")
+```
+
+
+9. Use the assembler object to transform feature_data
+>A variable is created where the transformation of the VectorAssembler is performed to see it in a readable way
+```Scala
+val output= VectorA.transform(feature_data)
+```
+
+10.  Create a Kmeans model with K = 3
+> The kmeans object is created to place the cluster number k = 3 and the seed 1L. The model for the kmeans object is created with the data from the output dataset which is our already normalized vector
+```Scala
+val kmeans = new KMeans().setK(3).setSeed(1L)
+val model = kmeans.fit(output)
+```
+
+
+11.  Evaluate groups using Within Set Sum of Squared Errors WSSSE and print centroids.
+>The WSSE variable is created where we show the sum of the squared distances of the points to their closest center for the data output model and we print this value. The centroids of the clusters are printed taking into account the model and the centroids that were generated with a foreach
+```Scala
+val WSSE = model.computeCost(output)
+println(s"Within set sum of Squared Errors = $WSSE")
+
+println("Cluster Centers: ")
+model.clusterCenters.foreach(println)
+```
+

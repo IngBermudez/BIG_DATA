@@ -19,8 +19,11 @@ Table of contents
         - [Practice 1](#practice-1-1)
         - [Practice 2](#practice-2-1)
         - [Practice 3](#practice-3-1)
-        - [Practice 4](#practice-4-1)
-        - [Practice 5](#practice-5-1)
+        - [Practice 4](#practice-4)
+        - [Practice 5](#practice-5)
+        - [Practice 6](#practice-6)
+        - [Practice 7](#practice-7)
+        - [Practice 8](#practice-8)
   - [Evaluative Practice](#evaluative-practice-1)
   
 - [Unit 3](#unit-3)
@@ -1245,4 +1248,6 @@ val model = kmeans.fit(output)
 # Unit 4
 ---
 
+
 [Final Project](https://github.com/IngBermudez/BIG_DATA/tree/Final_Project/Final_Project#readme)
+=======

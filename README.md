@@ -1239,7 +1239,66 @@ val output= VectorA.transform(feature_data)
 val kmeans = new KMeans().setK(3).setSeed(1L)
 val model = kmeans.fit(output)
 ```
+# Unit 4 final project
 
+
+# Theoretical framework
+
+## Logistic Regression
+Logistic regression is a popular method for predicting a categorical response. It is a special case of generalized linear models that predicts the probability of the results. In spark.ml, logistic regression can be used to predict a binary outcome by using binomial logistic regression, or it can be used to predict a multiclass outcome by using multinomial logistic regression. Use the family parameter to select between these two algorithms, or leave it unconfigured and Spark will deduce the correct variant.
+
+
+## Multilayer Perceptron
+Multilayer perceptron classifier (MLPC) is a classifier based on the feedforward artificial neural network. MLPC consists of multiple layers of nodes. Each layer is fully connected to the next layer in the network. Nodes in the input layer represent the input data. All other nodes map inputs to outputs by a linear combination of the inputs with the node’s weights w and bias b and applying an activation function.
+
+
+# Implementación 
+It was decided to use the spark language for this project due to its great versatility when it comes to manipulating large amounts of data, managing to analyze them in a fairly good time. Spark provides APIs for Python, Java and Scala, we chose Scala because it is a functional language that allows us to implement the MapReduce paradigm easily and quickly. Scala works in the JVM, which allows us to have the multiple libraries created for Java. Visual studio code was also used as a viewer as a code editor since it allows us to open several terminal instances, as well as its integration with gitHub, which allows us to work in pairs. The operating system used was windows, which was for convenience, since we would not have to start a virtual machine with linux to be able to work, which did not save much time and speeds up the process.
+
+# Results
+## Logistic Regression
+With this algorithm, we were able to achieve a degree of accuracy of 88.7% in general.
+The tests carried out in this case were a total of 20, which produced exactly the same result. a supposed scenario where it would change would be to run the code on a second machine.
+>Coefficients
+```Scala
+Coefficients: [2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]
+```
+>Interceptions
+```Scala
+scala> println(s"Intercepciones: ${model.intercept}")
+Intercepciones: -2.696757175407947
+```
+>Degree of accuracy
+```Scala
+scala> println(s"Grado de exactitud = ${evaluador.evaluate(resultados)}")
+Grado de exactitud = 0.8871120157010977 
+```
+| Coefficients | Interceptions | Degree of accuracy |
+| -- | -- | -- |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+|[2.6075947650098506E-5,-0.0036213550908734578,0.0019938415466320835,0.00134932187930364,0.04008022407390256]| -2.696757175407947 | 0.8871120157010977 |
+
+
+## Multilayer Perceptron
+In the same way as in the previous algorithm, 30 scala code tests were carried out, unfortunately the comparison turned out to have zero variation between results, resulting in a precision of 88.2% in any case.
+And like the previous case, the result is expected to change depending on the machine where the code is executed by no more than 1 or 2%.
+```Scala
+Test set accuracy
+ 0.8828888399088972 
+```
+
+
+# Conclusions
+The different algorithms that we review tend to vary very little, this could be for different reasons such as: the system in which it was tested, the amount of data selected, the types of data selected, even the capacity of the algorithm generated based on our knowledge.
+As a general knowledge we can conclude that these algorithms work stably even in the presence of a very large amount of data. And in particular the language chosen for this means that everything is carried in a lighter and more comfortable way for our machine, in this case Scala.
 
 11.  Evaluate groups using Within Set Sum of Squared Errors WSSSE and print centroids.
 >The WSSE variable is created where we show the sum of the squared distances of the points to their closest center for the data output model and we print this value. The centroids of the clusters are printed taking into account the model and the centroids that were generated with a foreach

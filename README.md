@@ -25,7 +25,9 @@ Table of contents
   
 - [Unit 3](#unit-3)
   - [Evaluative Practice](#evaluative-practice-2)
-    
+  
+- [Unit 4](#unit-4)
+
 
 <div id='pr1' />
 
@@ -1309,3 +1311,8 @@ println(s"Within set sum of Squared Errors = $WSSE")
 println("Cluster Centers: ")
 model.clusterCenters.foreach(println)
 ```
+
+# Unit 4
+---
+
+[Final Project](https://github.com/IngBermudez/BIG_DATA/tree/Final_Project/Final_Project#readme)

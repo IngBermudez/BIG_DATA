@@ -28,7 +28,9 @@ Table of contents
   
 - [Unit 3](#unit-3)
   - [Evaluative Practice](#evaluative-practice-2)
-    
+  
+- [Unit 4](#unit-4)
+
 
 <div id='pr1' />
 
@@ -1243,14 +1245,9 @@ val kmeans = new KMeans().setK(3).setSeed(1L)
 val model = kmeans.fit(output)
 ```
 
+# Unit 4
+---
 
-11.  Evaluate groups using Within Set Sum of Squared Errors WSSSE and print centroids.
->The WSSE variable is created where we show the sum of the squared distances of the points to their closest center for the data output model and we print this value. The centroids of the clusters are printed taking into account the model and the centroids that were generated with a foreach
-```Scala
-val WSSE = model.computeCost(output)
-println(s"Within set sum of Squared Errors = $WSSE")
 
-println("Cluster Centers: ")
-model.clusterCenters.foreach(println)
-```
-
+[Final Project](https://github.com/IngBermudez/BIG_DATA/tree/Final_Project/Final_Project#readme)
+=======
